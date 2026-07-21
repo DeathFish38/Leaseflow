@@ -1,0 +1,16 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/leaseflow
+    username: postgres
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
