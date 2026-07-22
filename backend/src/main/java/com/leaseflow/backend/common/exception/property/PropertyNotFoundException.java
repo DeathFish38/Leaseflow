@@ -1,4 +1,4 @@
-package com.leaseflow.backend.common.exception;
+package com.leaseflow.backend.common.exception.property;
 
 public class PropertyNotFoundException extends RuntimeException {
     public PropertyNotFoundException(Long id) {

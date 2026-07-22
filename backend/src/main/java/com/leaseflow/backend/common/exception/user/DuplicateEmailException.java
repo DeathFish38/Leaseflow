@@ -1,4 +1,4 @@
-package com.leaseflow.backend.common.exception;
+package com.leaseflow.backend.common.exception.user;
 
 public class DuplicateEmailException extends RuntimeException{
 

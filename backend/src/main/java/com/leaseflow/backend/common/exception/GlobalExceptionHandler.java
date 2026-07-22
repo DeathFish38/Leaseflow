@@ -7,36 +7,83 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.leaseflow.backend.common.exception.lease.InvalidLeaseDateException;
+import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
+import com.leaseflow.backend.common.exception.lease.LeaseNotFoundException;
+import com.leaseflow.backend.common.exception.user.DuplicateEmailException;
+import com.leaseflow.backend.common.exception.user.InvalidCredentialsException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // handle duplicated email for register
-    @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ApiError> handleDuplicateEmail(DuplicateEmailException ex) {
+        // handle duplicated email for register
+        @ExceptionHandler(DuplicateEmailException.class)
+        public ResponseEntity<ApiError> handleDuplicateEmail(DuplicateEmailException ex) {
 
-        ApiError error = new ApiError(
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                ex.getMessage(),
-                LocalDateTime.now());
+                ApiError error = new ApiError(
+                                HttpStatus.CONFLICT.value(),
+                                HttpStatus.CONFLICT.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(error);
-    }
+                return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body(error);
+        }
 
-    // handle login credentials
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
-        ApiError error = new ApiError(
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                ex.getMessage(),
-                LocalDateTime.now());
+        // handle login credentials
+        @ExceptionHandler(InvalidCredentialsException.class)
+        public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
 
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(error);
-    }
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        // Property management
+        @ExceptionHandler(PropertyNotFoundException.class)
+        public ResponseEntity<ApiError> PropertyNotFoundException(PropertyNotFoundException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        // Lease management exceptions
+        @ExceptionHandler(InvalidLeaseDateException.class)
+        public ResponseEntity<ApiError> InvalidLeaseDateException(InvalidLeaseDateException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(LeaseNotFoundException.class)
+        public ResponseEntity<ApiError> LeaseNotFoundException(LeaseNotFoundException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
 
 }

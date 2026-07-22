@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.leaseflow.backend.common.exception.UserNotFoundException;
-import com.leaseflow.backend.common.exception.PropertyNotFoundException;
+import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
+import com.leaseflow.backend.common.exception.user.UserNotFoundException;
 import com.leaseflow.backend.property.dto.CreatePropertyRequest;
 import com.leaseflow.backend.property.dto.PropertyResponse;
 import com.leaseflow.backend.property.dto.UpdatePropertyRequest;

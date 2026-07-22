@@ -7,8 +7,8 @@ import com.leaseflow.backend.auth.dto.RegisterRequest;
 import com.leaseflow.backend.auth.dto.UserResponse;
 import com.leaseflow.backend.auth.dto.LoginRequest;
 import com.leaseflow.backend.auth.dto.LoginResponse;
-import com.leaseflow.backend.common.exception.DuplicateEmailException;
-import com.leaseflow.backend.common.exception.InvalidCredentialsException;
+import com.leaseflow.backend.common.exception.user.DuplicateEmailException;
+import com.leaseflow.backend.common.exception.user.InvalidCredentialsException;
 import com.leaseflow.backend.users.entity.User;
 import com.leaseflow.backend.users.repository.UserRepository;
 
