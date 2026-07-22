@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.leaseflow.backend.common.exception.lease.InvalidLeaseDateException;
+import com.leaseflow.backend.common.exception.lease.LeaseAlreadyExistsException;
 import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
 import com.leaseflow.backend.common.exception.lease.LeaseNotFoundException;
 import com.leaseflow.backend.common.exception.user.DuplicateEmailException;
@@ -75,6 +76,19 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(LeaseNotFoundException.class)
         public ResponseEntity<ApiError> LeaseNotFoundException(LeaseNotFoundException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(LeaseAlreadyExistsException.class)
+        public ResponseEntity<ApiError> LeaseAlreadyExistsException(LeaseAlreadyExistsException ex) {
                 ApiError error = new ApiError(
                                 HttpStatus.UNAUTHORIZED.value(),
                                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),
