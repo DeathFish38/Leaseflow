@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.leaseflow.backend.common.exception.lease.InvalidLeaseDateException;
 import com.leaseflow.backend.common.exception.lease.LeaseAlreadyExistsException;
-import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
 import com.leaseflow.backend.common.exception.lease.LeaseNotFoundException;
+import com.leaseflow.backend.common.exception.payment.InvalidPaymentException;
+import com.leaseflow.backend.common.exception.payment.PaymentAlreadyPaidException;
+import com.leaseflow.backend.common.exception.payment.PaymentDateException;
+import com.leaseflow.backend.common.exception.payment.PaymentGenerationException;
+import com.leaseflow.backend.common.exception.payment.PaymentNotFoundException;
+import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
 import com.leaseflow.backend.common.exception.user.DuplicateEmailException;
 import com.leaseflow.backend.common.exception.user.InvalidCredentialsException;
 
@@ -100,4 +105,69 @@ public class GlobalExceptionHandler {
                                 .body(error);
         }
 
+        // Payment
+        @ExceptionHandler(PaymentNotFoundException.class)
+        public ResponseEntity<ApiError> PaymentNotFoundException(PaymentNotFoundException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(InvalidPaymentException.class)
+        public ResponseEntity<ApiError> InvalidPaymentException(InvalidPaymentException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(PaymentAlreadyPaidException.class)
+        public ResponseEntity<ApiError> PaymentAlreadyPaidException(PaymentAlreadyPaidException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(PaymentDateException.class)
+        public ResponseEntity<ApiError> PaymentDateException(PaymentDateException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(PaymentGenerationException.class)
+        public ResponseEntity<ApiError> PaymentGenerationException(PaymentGenerationException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
 }

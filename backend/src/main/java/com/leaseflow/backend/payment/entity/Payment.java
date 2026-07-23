@@ -1,10 +1,10 @@
-package com.leaseflow.backend.lease.entity;
+package com.leaseflow.backend.payment.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.leaseflow.backend.common.entity.BaseEntity;
-import com.leaseflow.backend.property.entity.Property;
+import com.leaseflow.backend.lease.entity.Lease;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,40 +23,45 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "leases")
+@Table(name = "payments")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Lease extends BaseEntity {
+public class Payment extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "lease_start", nullable = false)
-    private LocalDate leaseStart;
+    @Column(name = "lease_id", nullable = false)
+    private Long leaseId;
 
-    @Column(name = "lease_end", nullable = false)
-    private LocalDate leaseEnd;
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
 
-    @Column(name = "weekly_rent", nullable = false)
-    private BigDecimal weeklyRent;
+    @Column(name = "due_date", nullable = false)
+    private LocalDate dueDate;
 
-    @Column(name = "bond_amount", nullable = false)
-    private BigDecimal bondAmount;
-
-    @Column(name = "inspection_frequency")
-    private String inspectionFrequency;
+    @Column(name = "paid_date", nullable = false)
+    private LocalDate paidDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_frequency", nullable = false)
-    private PaymentFrequency paymentFrequency;
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethod paymentMethod;
 
-    @Column(columnDefinition = "TEXT")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private PaymentStatus status;
+
+    @Column(name = "reference", nullable = false)
+    private String reference;
+
+    @Column(name = "notes", nullable = false)
     private String notes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "property_id")
-    private Property property;
+    @JoinColumn(name = "lease_id")
+    private Lease lease;
 
 }
