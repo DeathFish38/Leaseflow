@@ -9,4 +9,7 @@ import com.leaseflow.backend.property.entity.Property;
 
 public interface PropertyRepository extends JpaRepository<Property, Long> {
     List<Property> findByOwnerId(Long ownerId);
+
+    //aggregate for dashboard
+    long countByOwnerId(Long userId); 
 }

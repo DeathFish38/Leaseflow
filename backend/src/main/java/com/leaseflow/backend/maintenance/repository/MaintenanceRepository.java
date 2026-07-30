@@ -9,6 +9,8 @@ import com.leaseflow.backend.maintenance.entity.MaintenanceStatus;
 
 public interface MaintenanceRepository extends JpaRepository<MaintenanceRequest, Long> {
     List<MaintenanceRequest> findByPropertyId(Long propertyId);
-
     List<MaintenanceRequest> findByPropertyIdAndStatus(Long propertyId, MaintenanceStatus status);
+
+    // for dashboard
+    long countByPropertyOwnerIdAndStatusIn( Long userId, List<MaintenanceStatus> statuses);
 }
