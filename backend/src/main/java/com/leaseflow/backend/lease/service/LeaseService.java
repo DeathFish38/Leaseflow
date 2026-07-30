@@ -12,6 +12,7 @@ import com.leaseflow.backend.lease.dto.UpdateLeaseRequest;
 import com.leaseflow.backend.lease.entity.Lease;
 import com.leaseflow.backend.lease.mapper.LeaseMapper;
 import com.leaseflow.backend.lease.repository.LeaseRepository;
+import com.leaseflow.backend.payment.service.PaymentService;
 import com.leaseflow.backend.property.entity.Property;
 import com.leaseflow.backend.property.repository.PropertyRepository;
 
@@ -24,6 +25,8 @@ public class LeaseService {
     private final LeaseRepository leaseRepository;
     private final PropertyRepository propertyRepository;
     private final LeaseMapper leaseMapper;
+    // auto generate many payments for a lease
+    private final PaymentService paymentService; 
 
     public LeaseResponse createLease(Long propertyId, CreateLeaseRequest request) {
         Property property = getProperty(propertyId);
@@ -34,11 +37,15 @@ public class LeaseService {
 
         // validate correct leasing range
         validateDates(request.leaseStart(), request.leaseEnd());
-
+        // convert to lease scheme for entity to save
         Lease lease = leaseMapper.toEntity(request);
         lease.setProperty(property);
-
+        // save lease
         Lease savedLease = leaseRepository.save(lease);
+
+        // auto generate all payemnts for a lease
+        paymentService.generatePayments(savedLease);
+
         return leaseMapper.toResponse(savedLease);
     }
 
@@ -89,3 +96,5 @@ public class LeaseService {
     }
 
 }
+
+

@@ -3,6 +3,7 @@ package com.leaseflow.backend.payment.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.leaseflow.backend.payment.dto.CreatePaymentRequest;
@@ -28,54 +28,74 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+    // create new payment
     @PostMapping("/leases/{leaseId}/payments")
-    @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponse createPayment(
+    public ResponseEntity<PaymentResponse> createPayment(
             @PathVariable Long leaseId,
             @Valid @RequestBody CreatePaymentRequest request) {
 
-        return paymentService.createPayment(leaseId, request);
+        PaymentResponse response = paymentService.createPayment(leaseId, request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
+    // get all payments for a lease
     @GetMapping("/leases/{leaseId}/payments")
-    public List<PaymentResponse> getPayments(
+    public ResponseEntity<List<PaymentResponse>> getPayments(
             @PathVariable Long leaseId) {
 
-        return paymentService.getPayments(leaseId);
+        List<PaymentResponse> response = paymentService.getPayments(leaseId);
+
+        return ResponseEntity.ok(response);
     }
 
+    // get payment by id
     @GetMapping("/payments/{paymentId}")
-    public PaymentResponse getPaymentById(
+    public ResponseEntity<PaymentResponse> getPaymentById(
             @PathVariable Long paymentId) {
 
-        return paymentService.getPaymentById(paymentId);
+        PaymentResponse response = paymentService.getPaymentById(paymentId);
+
+        return ResponseEntity.ok(response);
     }
 
+    // update payment
     @PatchMapping("/payments/{paymentId}")
-    public PaymentResponse updatePayment(
+    public ResponseEntity<PaymentResponse> updatePayment(
             @PathVariable Long paymentId,
-            @RequestBody UpdatePaymentRequest request) {
+            @Valid @RequestBody UpdatePaymentRequest request) {
 
-        return paymentService.updatePayment(paymentId, request);
+        PaymentResponse response = paymentService.updatePayment(paymentId, request);
+
+        return ResponseEntity.ok(response);
     }
 
+    // mark payment as paid
     @PatchMapping("/payments/{paymentId}/mark-paid")
-    public PaymentResponse markAsPaid(
+    public ResponseEntity<PaymentResponse> markAsPaid(
             @PathVariable Long paymentId) {
 
-        return paymentService.markAsPaid(paymentId);
+        PaymentResponse response = paymentService.markAsPaid(paymentId);
+
+        return ResponseEntity.ok(response);
     }
 
+    // delete payment
     @DeleteMapping("/payments/{paymentId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePayment(
+    public ResponseEntity<Void> deletePayment(
             @PathVariable Long paymentId) {
 
         paymentService.deletePayment(paymentId);
+
+        return ResponseEntity.noContent().build();
     }
 
-    // add business oriented endpoints
+    // add business oriented endpoints - add later
     // GET /api/leases/{leaseId}/payments/next – returns the next upcoming payment.
     // GET /api/leases/{leaseId}/payments/overdue – returns overdue payments.
-    // GET /api/dashboard/payments/summary – returns totals such as amount paid, outstanding balance, and next due payment.
+    // GET /api/dashboard/payments/summary – returns totals such as amount paid,
+    // outstanding balance, and next due payment.
+
 }

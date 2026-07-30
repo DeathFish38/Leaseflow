@@ -40,7 +40,7 @@ public class Lease extends BaseEntity {
     private LocalDate leaseEnd;
 
     @Column(name = "weekly_rent", nullable = false)
-    private BigDecimal weeklyRent;
+    private BigDecimal weeklyRent; //rent amount
 
     @Column(name = "bond_amount", nullable = false)
     private BigDecimal bondAmount;

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.leaseflow.backend.common.exception.lease.InvalidLeaseDateException;
 import com.leaseflow.backend.common.exception.lease.LeaseAlreadyExistsException;
 import com.leaseflow.backend.common.exception.lease.LeaseNotFoundException;
+import com.leaseflow.backend.common.exception.maintenance.InvalidMaintenanceStatusException;
+import com.leaseflow.backend.common.exception.maintenance.MaintenanceNotFoundException;
 import com.leaseflow.backend.common.exception.payment.InvalidPaymentException;
 import com.leaseflow.backend.common.exception.payment.PaymentAlreadyPaidException;
 import com.leaseflow.backend.common.exception.payment.PaymentDateException;
@@ -170,4 +172,32 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.UNAUTHORIZED)
                                 .body(error);
         }
+
+        // maintenance
+        @ExceptionHandler(MaintenanceNotFoundException.class)
+        public ResponseEntity<ApiError> MaintenanceNotFoundException(MaintenanceNotFoundException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
+        @ExceptionHandler(InvalidMaintenanceStatusException.class)
+        public ResponseEntity<ApiError> InvalidMaintenanceStatusException(InvalidMaintenanceStatusException ex) {
+                ApiError error = new ApiError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                                ex.getMessage(),
+                                LocalDateTime.now());
+
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(error);
+        }
+
 }

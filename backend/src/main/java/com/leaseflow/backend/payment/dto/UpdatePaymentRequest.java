@@ -5,8 +5,10 @@ import java.time.LocalDate;
 
 import com.leaseflow.backend.payment.entity.PaymentMethod;
 
+import jakarta.validation.constraints.DecimalMin;
+
 public record UpdatePaymentRequest(
-        BigDecimal amount,
+        @DecimalMin("0.01") BigDecimal amount,
         LocalDate dueDate,
         PaymentMethod paymentMethod,
         String reference,

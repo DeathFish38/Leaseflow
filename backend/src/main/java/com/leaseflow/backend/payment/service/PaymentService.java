@@ -1,6 +1,7 @@
 package com.leaseflow.backend.payment.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -68,14 +69,15 @@ public class PaymentService {
     }
 
     // update payment
-    public PaymentResponse updatePayment(Long paymentId,
-            UpdatePaymentRequest request) {
+    public PaymentResponse updatePayment(Long paymentId, UpdatePaymentRequest request) {
 
         Payment payment = getPayment(paymentId);
 
+        if(payment.getStatus() == PaymentStatus.PAID){
+            throw new InvalidPaymentException("Paid payments cannot be updated.");
+        }
+        // this update can cause problem for payment already paid so need to add validation before it 
         paymentMapper.updateEntity(payment, request);
-
-        // check status
         updatePaymentStatus(payment);
 
         Payment updatedPayment = paymentRepository.save(payment);
@@ -102,6 +104,30 @@ public class PaymentService {
     public void deletePayment(Long paymentId) {
 
         paymentRepository.delete(getPayment(paymentId));
+    }
+
+    // auto generate payments for a lease
+    public void generatePayments(Lease lease) {
+        // store payments as list
+        List<Payment> payments = new ArrayList<>(); 
+        
+        // payment due date is the lease start date
+        LocalDate dueDate = lease.getLeaseStart();
+
+        while (!dueDate.isAfter(lease.getLeaseEnd())) {
+            Payment payment = new Payment();
+
+            payment.setLease(lease);
+            payment.setAmount(lease.getWeeklyRent());
+            payment.setDueDate(dueDate);
+
+            // update payment status
+            updatePaymentStatus(payment);
+            dueDate = dueDate.plusWeeks(1); 
+        }
+
+        // save all payments to repo
+        paymentRepository.saveAll(payments); 
     }
 
     // helper methods
