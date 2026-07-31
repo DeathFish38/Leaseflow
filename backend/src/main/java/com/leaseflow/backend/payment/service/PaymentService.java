@@ -116,13 +116,14 @@ public class PaymentService {
 
         while (!dueDate.isAfter(lease.getLeaseEnd())) {
             Payment payment = new Payment();
-
             payment.setLease(lease);
             payment.setAmount(lease.getWeeklyRent());
             payment.setDueDate(dueDate);
-
             // update payment status
             updatePaymentStatus(payment);
+            // add to list
+            payments.add(payment); 
+            // then update week currently do weekly payment
             dueDate = dueDate.plusWeeks(1); 
         }
 

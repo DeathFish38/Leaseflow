@@ -16,6 +16,7 @@ import com.leaseflow.backend.payment.service.PaymentService;
 import com.leaseflow.backend.property.entity.Property;
 import com.leaseflow.backend.property.repository.PropertyRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,6 +29,7 @@ public class LeaseService {
     // auto generate many payments for a lease
     private final PaymentService paymentService; 
 
+    @Transactional
     public LeaseResponse createLease(Long propertyId, CreateLeaseRequest request) {
         Property property = getProperty(propertyId);
 

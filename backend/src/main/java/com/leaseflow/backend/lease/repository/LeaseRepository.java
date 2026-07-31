@@ -11,7 +11,7 @@ import com.leaseflow.backend.lease.entity.Lease;
 public interface LeaseRepository extends JpaRepository<Lease, Long> {
     Optional<Lease> findByPropertyId(Long propertyId);
 
-    List<Lease> findPropertyByOwnerId(Long userId);
+    List<Lease> findByPropertyOwnerId(Long userId);
 
     // active lease
     // property.owner.id = userId AND leaseStart <= today AND leaseEnd >= today

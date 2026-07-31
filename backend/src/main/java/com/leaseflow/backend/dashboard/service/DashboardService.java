@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.leaseflow.backend.dashboard.dto.DashboardResponse;
 import com.leaseflow.backend.dashboard.dto.DashboardResponse.NextPaymentResponse;
+import com.leaseflow.backend.lease.entity.Lease;
 import com.leaseflow.backend.lease.repository.LeaseRepository;
 import com.leaseflow.backend.maintenance.entity.MaintenanceStatus;
 import com.leaseflow.backend.maintenance.repository.MaintenanceRepository;
@@ -31,15 +32,22 @@ public class DashboardService {
         LocalDate today = LocalDate.now();
         // properties
         long propertyCount = propertyRepository.countByOwnerId(userId);
+
         // active leases
+        List<Lease> activeLeases = leaseRepository.findByPropertyOwnerId(userId)
+                .stream()
+                .filter(lease -> !lease.getLeaseStart().isAfter(today)
+                        && !lease.getLeaseEnd().isBefore(today))
+                .toList();
+
+        // count active leases
         long activeLeaseCount = leaseRepository
                 .countByPropertyOwnerIdAndLeaseStartLessThanEqualAndLeaseEndGreaterThanEqual(userId, today, today);
+
         // weekly rent
         @SuppressWarnings("null")
-        BigDecimal weeklyRent = leaseRepository.findPropertyByOwnerId(userId)
-                .stream()
-                .filter(lease -> !lease.getLeaseStart().isAfter(today) && !lease.getLeaseEnd().isBefore(today))
-                .map(lease -> lease.getWeeklyRent())
+        BigDecimal weeklyRent = activeLeases.stream()
+                .map(Lease::getWeeklyRent)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // upcoming payment
@@ -58,19 +66,17 @@ public class DashboardService {
 
         // open maintenance
         long openMaintenanceRequests = maintenanceRepository.countByPropertyOwnerIdAndStatusIn(
-            userId, 
-            List.of(MaintenanceStatus.OPEN, MaintenanceStatus.IN_PROGRESS)
-        );
+                userId,
+                List.of(MaintenanceStatus.OPEN, MaintenanceStatus.IN_PROGRESS));
 
         return new DashboardResponse(
-            propertyCount, 
-            activeLeaseCount, 
-            weeklyRent, 
-            nextPayment, 
-            outstandingRent, 
-            overduePayments, 
-            openMaintenanceRequests
-        );
+                propertyCount,
+                activeLeaseCount,
+                weeklyRent,
+                nextPayment,
+                outstandingRent,
+                overduePayments,
+                openMaintenanceRequests);
 
     }
 }
