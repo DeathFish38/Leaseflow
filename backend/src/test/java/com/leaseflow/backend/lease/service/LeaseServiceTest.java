@@ -198,12 +198,6 @@ class LeaseServiceTest {
 
                 UpdateLeaseRequest request = mock(UpdateLeaseRequest.class);
 
-                when(request.leaseStart())
-                                .thenReturn(null);
-
-                when(request.leaseEnd())
-                                .thenReturn(null);
-
                 when(leaseRepository.findById(1L))
                                 .thenReturn(Optional.of(lease));
 

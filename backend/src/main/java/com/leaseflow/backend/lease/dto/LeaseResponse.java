@@ -13,7 +13,6 @@ public record LeaseResponse(
         BigDecimal bondAmount,
         PaymentFrequency paymentFrequency,
         String inspectionFrequency,
-        String notes
-) {
+        String notes) {
 
 }
