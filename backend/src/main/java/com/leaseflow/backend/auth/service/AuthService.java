@@ -3,12 +3,13 @@ package com.leaseflow.backend.auth.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.leaseflow.backend.auth.dto.RegisterRequest;
-import com.leaseflow.backend.auth.dto.UserResponse;
 import com.leaseflow.backend.auth.dto.LoginRequest;
 import com.leaseflow.backend.auth.dto.LoginResponse;
+import com.leaseflow.backend.auth.dto.RegisterRequest;
+import com.leaseflow.backend.auth.dto.UserResponse;
 import com.leaseflow.backend.common.exception.user.DuplicateEmailException;
 import com.leaseflow.backend.common.exception.user.InvalidCredentialsException;
+import com.leaseflow.backend.security.jwt.JwtService;
 import com.leaseflow.backend.users.entity.User;
 import com.leaseflow.backend.users.repository.UserRepository;
 
@@ -20,6 +21,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     // create new user
     public UserResponse register(RegisterRequest request) {
@@ -46,7 +48,9 @@ public class AuthService {
     }
 
     // login
+    // login
     public LoginResponse login(LoginRequest request) {
+
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(InvalidCredentialsException::new);
 
@@ -56,12 +60,12 @@ public class AuthService {
 
             throw new InvalidCredentialsException();
         }
+        String token = jwtService.generateToken(user);
 
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),
-                "Login successful");
-
+                token);
     }
 
 }
