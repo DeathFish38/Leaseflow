@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.leaseflow.backend.auth.service.AuthService;
 import com.leaseflow.backend.common.exception.maintenance.InvalidMaintenanceStatusException;
 import com.leaseflow.backend.common.exception.maintenance.MaintenanceNotFoundException;
 import com.leaseflow.backend.common.exception.property.PropertyNotFoundException;
@@ -17,6 +18,7 @@ import com.leaseflow.backend.maintenance.mapper.MaintenanceMapper;
 import com.leaseflow.backend.maintenance.repository.MaintenanceRepository;
 import com.leaseflow.backend.property.entity.Property;
 import com.leaseflow.backend.property.repository.PropertyRepository;
+import com.leaseflow.backend.users.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,23 +28,27 @@ public class MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final PropertyRepository propertyRepository;
     private final MaintenanceMapper maintenanceMapper;
+    private final AuthService authService;
 
     // create maintenance
     public MaintenanceResponse createMaintenance(Long propertyId, CreateMaintenanceRequest request) {
-        Property property = getProperty(propertyId);
+        Property property = getPropertyForAuthenticatedUser(propertyId);
         // convert to entity schema
         MaintenanceRequest maintenance = maintenanceMapper.toEntity(request);
+
         maintenance.setProperty(property);
         maintenance.setStatus(MaintenanceStatus.OPEN);
         maintenance.setReportedDate(LocalDate.now());
+
         // save to repo
         MaintenanceRequest saved = maintenanceRepository.save(maintenance);
+        
         return maintenanceMapper.toResponse(saved);
     }
 
     // get all maintenances
     public List<MaintenanceResponse> getMaintenanceByProperty(Long propertyId) {
-        getProperty(propertyId);
+        getPropertyForAuthenticatedUser(propertyId);
         return maintenanceRepository
                 .findByPropertyId(propertyId)
                 .stream()
@@ -52,12 +58,12 @@ public class MaintenanceService {
 
     // get by a request id
     public MaintenanceResponse getMaintenanceById(Long maintenanceId) {
-        return maintenanceMapper.toResponse(getMaintenance(maintenanceId));
+        return maintenanceMapper.toResponse(getMaintenanceForAuthenticatedUser(maintenanceId));
     }
 
     // update
     public MaintenanceResponse updateMaintenance(Long maintenanceId, UpdateMaintenanceRequest request) {
-        MaintenanceRequest maintenance = getMaintenance(maintenanceId);
+        MaintenanceRequest maintenance = getMaintenanceForAuthenticatedUser(maintenanceId);
         if (maintenance.getStatus() == MaintenanceStatus.COMPLETED) {
             throw new InvalidMaintenanceStatusException(
                     "Completed maintenance requests cannot be updated.");
@@ -74,14 +80,14 @@ public class MaintenanceService {
 
     // delete
     public void deleteMaintenance(Long maintenanceId) {
-        MaintenanceRequest maintenance = getMaintenance(maintenanceId);
+        MaintenanceRequest maintenance = getMaintenanceForAuthenticatedUser(maintenanceId);
         maintenanceRepository.delete(maintenance);
     }
 
     // Workflow methods
     // start a request
     public MaintenanceResponse startMaintenance(Long maintenanceId) {
-        MaintenanceRequest maintenance = getMaintenance(maintenanceId);
+        MaintenanceRequest maintenance = getMaintenanceForAuthenticatedUser(maintenanceId);
         if (maintenance.getStatus() != MaintenanceStatus.OPEN) {
 
             throw new InvalidMaintenanceStatusException(
@@ -96,7 +102,7 @@ public class MaintenanceService {
 
     // complete a request
     public MaintenanceResponse completeMaintenance(Long maintenanceId) {
-        MaintenanceRequest maintenance = getMaintenance(maintenanceId);
+        MaintenanceRequest maintenance = getMaintenanceForAuthenticatedUser(maintenanceId);
 
         if (maintenance.getStatus() != MaintenanceStatus.IN_PROGRESS) {
 
@@ -114,15 +120,33 @@ public class MaintenanceService {
 
     // Helper methods
     // return property object
-    private Property getProperty(Long propertyId) {
-        return propertyRepository.findById(propertyId)
+    private Property getPropertyForAuthenticatedUser(Long propertyId) {
+
+        User user = authService.getAuthenticatedUser();
+
+        Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new PropertyNotFoundException(propertyId));
+
+        if (!property.getOwner().getId().equals(user.getId())) {
+            throw new PropertyNotFoundException(propertyId);
+        }
+
+        return property;
     }
 
     // return a maintenanceRequest object
-    private MaintenanceRequest getMaintenance(Long id) {
-        return maintenanceRepository.findById(id)
-                .orElseThrow(() -> new MaintenanceNotFoundException(id));
+    private MaintenanceRequest getMaintenanceForAuthenticatedUser(Long maintenanceId) {
+        User user = authService.getAuthenticatedUser();
+        MaintenanceRequest maintenance = maintenanceRepository.findById(maintenanceId)
+                .orElseThrow(() -> new MaintenanceNotFoundException(maintenanceId));
+        if (!maintenance.getProperty()
+                .getOwner()
+                .getId()
+                .equals(user.getId())) {
+
+            throw new MaintenanceNotFoundException(maintenanceId);
+        }
+        return maintenance;
     }
 
 }

@@ -2,7 +2,6 @@ package com.leaseflow.backend.dashboard.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,9 +20,8 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<DashboardResponse> getDashboard(@PathVariable Long userId) {
-        DashboardResponse response = dashboardService.getDashboard(userId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<DashboardResponse> getDashboard() {
+        return ResponseEntity.ok(dashboardService.getDashboard());
     }
 
 }

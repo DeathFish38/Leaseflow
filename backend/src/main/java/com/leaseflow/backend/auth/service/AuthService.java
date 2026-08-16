@@ -1,5 +1,7 @@
 package com.leaseflow.backend.auth.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    public User getAuthenticatedUser() {
+        // JWT -> jwt filter -> security context holder -> getName() -> email -> user repo -> User
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email).orElseThrow(InvalidCredentialsException::new);
+    }
 
     // create new user
     public UserResponse register(RegisterRequest request) {

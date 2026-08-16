@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.leaseflow.backend.auth.service.AuthService;
 import com.leaseflow.backend.common.exception.lease.LeaseNotFoundException;
 import com.leaseflow.backend.common.exception.payment.InvalidPaymentException;
 import com.leaseflow.backend.common.exception.payment.PaymentAlreadyPaidException;
@@ -19,6 +20,7 @@ import com.leaseflow.backend.payment.entity.Payment;
 import com.leaseflow.backend.payment.entity.PaymentStatus;
 import com.leaseflow.backend.payment.mapper.PaymentMapper;
 import com.leaseflow.backend.payment.repository.PaymentRepository;
+import com.leaseflow.backend.users.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,10 +31,11 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final LeaseRepository leaseRepository;
     private final PaymentMapper paymentMapper;
+    private final AuthService authService;
 
     // create new payment
     public PaymentResponse createPayment(Long leaseId, CreatePaymentRequest request) {
-        Lease lease = getLease(leaseId);
+        Lease lease = getLeaseForAuthenticatedUser(leaseId);
         // validate the payment date
         if (request.dueDate().isBefore(lease.getLeaseStart()) || request.dueDate().isAfter(lease.getLeaseEnd())) {
             throw new InvalidPaymentException("Payment due date must be within the lease period.");
@@ -40,21 +43,17 @@ public class PaymentService {
 
         // convert payment to entity schema for saving
         Payment payment = paymentMapper.toEntity(request);
-
         payment.setLease(lease);
-
         // check the status
         updatePaymentStatus(payment);
-
+        // save 
         Payment savedPayment = paymentRepository.save(payment);
         return paymentMapper.toResponse(savedPayment);
     }
 
     // get payments
     public List<PaymentResponse> getPayments(Long leaseId) {
-
-        getLease(leaseId);
-
+        getLeaseForAuthenticatedUser(leaseId);
         return paymentRepository.findByLeaseId(leaseId)
                 .stream()
                 .map(paymentMapper::toResponse)
@@ -65,18 +64,19 @@ public class PaymentService {
     public PaymentResponse getPaymentById(Long paymentId) {
 
         return paymentMapper.toResponse(
-                getPayment(paymentId));
+                getPaymentForAuthenticatedUser(paymentId));
     }
 
     // update payment
     public PaymentResponse updatePayment(Long paymentId, UpdatePaymentRequest request) {
 
-        Payment payment = getPayment(paymentId);
+        Payment payment = getPaymentForAuthenticatedUser(paymentId);
 
-        if(payment.getStatus() == PaymentStatus.PAID){
+        if (payment.getStatus() == PaymentStatus.PAID) {
             throw new InvalidPaymentException("Paid payments cannot be updated.");
         }
-        // this update can cause problem for payment already paid so need to add validation before it 
+        // this update can cause problem for payment already paid so need to add
+        // validation before it
         paymentMapper.updateEntity(payment, request);
         updatePaymentStatus(payment);
 
@@ -87,7 +87,7 @@ public class PaymentService {
 
     public PaymentResponse markAsPaid(Long paymentId) {
 
-        Payment payment = getPayment(paymentId);
+        Payment payment = getPaymentForAuthenticatedUser(paymentId);
 
         if (payment.getStatus() == PaymentStatus.PAID) {
             throw new PaymentAlreadyPaidException(paymentId);
@@ -103,14 +103,14 @@ public class PaymentService {
 
     public void deletePayment(Long paymentId) {
 
-        paymentRepository.delete(getPayment(paymentId));
+        paymentRepository.delete(getPaymentForAuthenticatedUser(paymentId));
     }
 
     // auto generate payments for a lease
     public void generatePayments(Lease lease) {
         // store payments as list
-        List<Payment> payments = new ArrayList<>(); 
-        
+        List<Payment> payments = new ArrayList<>();
+
         // payment due date is the lease start date
         LocalDate dueDate = lease.getLeaseStart();
 
@@ -122,25 +122,50 @@ public class PaymentService {
             // update payment status
             updatePaymentStatus(payment);
             // add to list
-            payments.add(payment); 
+            payments.add(payment);
             // then update week currently do weekly payment
-            dueDate = dueDate.plusWeeks(1); 
+            dueDate = dueDate.plusWeeks(1);
         }
 
         // save all payments to repo
-        paymentRepository.saveAll(payments); 
+        paymentRepository.saveAll(payments);
     }
 
     // helper methods
     // return lease object
-    private Lease getLease(Long leaseId) {
-        return leaseRepository.findById(leaseId).orElseThrow(() -> new LeaseNotFoundException(leaseId));
+    private Lease getLeaseForAuthenticatedUser(Long leaseId) {
+
+        User user = authService.getAuthenticatedUser();
+
+        Lease lease = leaseRepository.findById(leaseId)
+                .orElseThrow(() -> new LeaseNotFoundException(leaseId));
+
+        if (!lease.getProperty()
+                .getOwner()
+                .getId()
+                .equals(user.getId())) {
+
+            throw new LeaseNotFoundException(leaseId);
+        }
+
+        return lease;
     }
 
     // return payment object
-    private Payment getPayment(Long paymentId) {
-        return paymentRepository.findById(paymentId)
+    private Payment getPaymentForAuthenticatedUser(Long paymentId) {
+        User user = authService.getAuthenticatedUser();
+        Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
+
+        if (!payment.getLease()
+                .getProperty()
+                .getOwner()
+                .getId()
+                .equals(user.getId())) {
+
+            throw new PaymentNotFoundException(paymentId);
+        }
+        return payment;
     }
 
     // recalculate payment status
