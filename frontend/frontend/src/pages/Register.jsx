@@ -38,7 +38,7 @@ export default function Register() {
     <div className="auth-page">
       <form className="card" onSubmit={handleSubmit}>
         <h1>LeaseFlow</h1>
-        <h2>Create account</h2>
+        <h2>Create your workspace in a few simple steps.</h2>
 
         {error && <p className="error">{error}</p>}
 

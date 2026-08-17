@@ -36,7 +36,7 @@ export default function Login() {
     <div className="auth-page">
       <form className="card" onSubmit={handleSubmit}>
         <h1>LeaseFlow</h1>
-        <h2>Login</h2>
+        <h2>Welcome back — sign in to your workspace.</h2>
 
         {error && <p className="error">{error}</p>}
 
@@ -59,7 +59,7 @@ export default function Login() {
         <button type="submit">Login</button>
       </form>
       <p>
-        Don't have an account? <Link to="/register">Register</Link>
+        Don't have an account? <Link to="/register">Create one</Link>
       </p>
     </div>
   );

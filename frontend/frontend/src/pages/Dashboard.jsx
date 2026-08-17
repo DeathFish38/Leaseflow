@@ -14,13 +14,16 @@ export default function Dashboard() {
   return (
     <div className="page">
       <header className="topbar">
-        <h1>LeaseFlow</h1>
+        <div>
+          <h1>Good to see you</h1>
+          <p className="dashboard-intro">Here’s your rental portfolio at a glance.</p>
+        </div>
 
         <button onClick={logout}>Logout</button>
       </header>
 
       <main>
-        <h2>Welcome, {user.email}</h2>
+        <p className="dashboard-intro">Signed in as {user.email || "your account"}</p>
 
         <div className="grid">
           <div className="dashboard-card">

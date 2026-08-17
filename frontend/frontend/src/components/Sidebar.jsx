@@ -52,6 +52,15 @@ export default function Sidebar() {
         >
           Payments
         </NavLink>
+
+        <NavLink
+          to="/maintenance"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Maintenance
+        </NavLink>
       </nav>
 
       <div className="sidebar-bottom">
