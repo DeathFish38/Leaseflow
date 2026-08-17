@@ -40,7 +40,7 @@ public class LeaseController {
     }
     // 200 Ok 
 
-    @PatchMapping("/lease/{leaseId")
+    @PatchMapping("/lease/{leaseId}")
     public ResponseEntity<LeaseResponse> updateLease(@PathVariable Long leaseId, @RequestBody UpdateLeaseRequest request) {
         return ResponseEntity.ok(leaseService.updateLease(leaseId, request));
     }

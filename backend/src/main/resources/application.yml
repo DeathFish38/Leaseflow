@@ -2,18 +2,18 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/leaseflow
     username: postgres
-    password: password
-
-  jwt:
-    secret: 1234567890123456789012345678901234567890123456789012345678901234
-    expiration: 86400000
-
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
 
   flyway:
     enabled: true
+    locations: classpath:db/migration
+
+jwt:
+ secret: ${JWT_SECRET}
+ expiration: 86400000
 
 server:
   port: 8080

@@ -34,9 +34,6 @@ public class Payment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "lease_id", nullable = false)
-    private Long leaseId;
-
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
