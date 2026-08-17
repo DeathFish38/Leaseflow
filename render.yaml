@@ -1,28 +1,41 @@
 services:
   - type: web
-    name: leaseflow-api
+    name: leaseflow-api-deathfish38
     runtime: docker
     plan: free
     dockerContext: .
     dockerfilePath: ./backend/Dockerfile
     envVars:
-      - key: SPRING_DATASOURCE_URL
-        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: leaseflow-db
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
-        sync: false
+        fromDatabase:
+          name: leaseflow-db
+          property: user
       - key: SPRING_DATASOURCE_PASSWORD
-        sync: false
+        fromDatabase:
+          name: leaseflow-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: https://leaseflow-web-deathfish38.onrender.com
 
   - type: web
-    name: leaseflow-web
+    name: leaseflow-web-deathfish38
     runtime: static
     rootDir: frontend/frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: ./frontend/frontend/dist
     envVars:
       - key: VITE_API_URL
-        sync: false
+        value: https://leaseflow-api-deathfish38.onrender.com/api
+
+databases:
+  - name: leaseflow-db
+    plan: free
+    databaseName: leaseflow
+    user: leaseflow
+    postgresMajorVersion: "17"
