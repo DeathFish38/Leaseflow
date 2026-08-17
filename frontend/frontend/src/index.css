@@ -102,3 +102,159 @@ input {
     width: calc(100% - 32px);
   }
 }
+
+/* Layout */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #111827;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.sidebar-logo {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid #ffffff12;
+}
+
+.sidebar-logo h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 12px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  color: #9ca3af;
+  text-decoration: none;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-link span {
+  width: 22px;
+  text-align: center;
+}
+
+.sidebar-link:hover {
+  background: #1f2937;
+  color: white;
+}
+
+.sidebar-link.active {
+  background: #2563eb;
+  color: white;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 20px 12px;
+  border-top: 1px solid #ffffff12;
+}
+
+.sidebar-logout {
+  width: 100%;
+  background: transparent;
+  color: #9ca3af;
+
+  text-align: left;
+
+  padding: 12px 14px;
+}
+
+.sidebar-logout:hover {
+  background: #1f2937;
+  color: white;
+}
+
+.main-content {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  min-height: 100vh;
+}
+
+
+@media (max-width: 700px) {
+  .sidebar {
+    width: 70px;
+  }
+
+  .sidebar-logo {
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sidebar-logo h2 {
+    font-size: 0;
+  }
+
+  .sidebar-logo h2::after {
+    content: "L";
+    font-size: 22px;
+  }
+
+  .sidebar-link {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .sidebar-link span {
+    width: auto;
+  }
+
+  .sidebar-link {
+    font-size: 0;
+  }
+
+  .sidebar-link span {
+    font-size: 18px;
+  }
+
+  .sidebar-logout {
+    text-align: center;
+    font-size: 0;
+  }
+
+  .sidebar-logout::before {
+    content: "↪";
+    font-size: 20px;
+  }
+
+  .main-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
+}

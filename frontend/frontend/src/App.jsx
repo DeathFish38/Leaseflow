@@ -8,6 +8,8 @@ import Leases from "./pages/Leases";
 import Payments from "./pages/Payments";
 import Maintenance from "./pages/Maintenance";
 
+import Layout from "./components/Layout";
+
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
 
@@ -29,34 +31,26 @@ function Protected({ children }) {
 export default function App() {
   return (
     <Routes>
+      {/* Public pages */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
+      {/* Protected pages with Sidebar */}
       <Route
-        path="/dashboard"
-        element={<Protected><Dashboard /></Protected>}
-      />
+        element={
+          <Protected>
+            <Layout />
+          </Protected>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/properties" element={<Properties />} />
+        <Route path="/leases" element={<Leases />} />
+        <Route path="/payments" element={<Payments />} />
+        <Route path="/maintenance" element={<Maintenance />} />
+      </Route>
 
-      <Route
-        path="/properties"
-        element={<Protected><Properties /></Protected>}
-      />
-
-      <Route
-        path="/leases"
-        element={<Protected><Leases /></Protected>}
-      />
-
-      <Route
-        path="/payments"
-        element={<Protected><Payments /></Protected>}
-      />
-
-      <Route
-        path="/maintenance"
-        element={<Protected><Maintenance /></Protected>}
-      />
-
+      {/* Unknown route */}
       <Route
         path="*"
         element={<Navigate to="/dashboard" replace />}
