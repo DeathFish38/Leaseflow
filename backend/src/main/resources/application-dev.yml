@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/leaseflow
+    url: jdbc:postgresql://host.docker.internal:5432/leaseflow
     username: postgres
-    password: postgres
+    password: ${DB_PASSWORD}
 
   jpa:
     show-sql: true
