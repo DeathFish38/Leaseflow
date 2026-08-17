@@ -1,7 +1,10 @@
 package com.leaseflow.backend.security.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,12 +14,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.leaseflow.backend.security.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -41,37 +47,81 @@ public class SecurityConfig {
             throws Exception {
 
         http
-
+            // JWT API does not use browser sessions/CSRF tokens
             .csrf(AbstractHttpConfigurer::disable)
 
+            // Allow React frontend to call Spring Boot
+            .cors(cors ->
+                cors.configurationSource(corsConfigurationSource())
+            )
+
+            // JWT authentication = stateless
             .sessionManagement(session ->
-                    session.sessionCreationPolicy(
-                            SessionCreationPolicy.STATELESS))
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
 
             .authorizeHttpRequests(auth -> auth
 
-                    .requestMatchers("/api/auth/**")
-                    .permitAll()
+                // Login + registration are public
+                .requestMatchers("/api/auth/**")
+                .permitAll()
 
-                    .anyRequest()
-                    .authenticated())
+                // Browser CORS preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll()
 
+                // Everything else requires JWT
+                .anyRequest()
+                .authenticated()
+            )
+
+            // Read Authorization: Bearer <JWT>
             .addFilterBefore(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter.class);
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration =
+            new CorsConfiguration();
+
+        // React/Vite
+        configuration.setAllowedOrigins(
+            List.of("http://localhost:5173")
+        );
+
+        configuration.setAllowedMethods(
+            List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            )
+        );
+
+        configuration.setAllowedHeaders(
+            List.of("*")
+        );
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+            "/**",
+            configuration
+        );
+
+        return source;
+    }
 }
-
-// What happens now? 
-// Login
-// POST /api/auth/login  -> return jwt 
-
-// Next request 
-// GET /api/dashboard
-// Authorisation: Bearer eyJhbGC...
-// -> JwtAuthentication filter -> validate token -> extract email -> then CustomUserDetailsService
-// -> load user -> SecurityContextHolder -> controller
-// Next step is Spring Security integration and test authentication flow 
-
