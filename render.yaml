@@ -28,7 +28,7 @@ services:
     runtime: static
     rootDir: frontend/frontend
     buildCommand: npm ci && npm run build
-    staticPublishPath: ./frontend/frontend/dist
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         value: https://leaseflow-api-deathfish38.onrender.com/api
